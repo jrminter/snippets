@@ -1,20 +1,39 @@
 REM This should be in the ~work/prog/NAME/scripts directory
 cd "../R/"
-R CMD BATCH anaNozzles.R
+R CMD BATCH myCode.R
 pause
 del *.Rout
 del *.RData
 del Rplots.pdf
 del *.Rhistory
 
-cd "../TeX/"
-REM Prepare the report
-pdflatex QM12-02D-05A
-# bibtex QM12-02D-05A
-# pdflatex QM12-02D-05A
-pdflatex QM12-02D-05A
-del *.aux *.out *.log *.toc *.b* *.lof *.lot
-move  QM12-02D-05A.pdf QM12-02D-05A-uncomp.pdf
-gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=QM12-02D-05A.pdf QM12-02D-05A-uncomp.pdf 
+cd ../Sweave/
+R CMD Sweave  myRept
+REM R CMD Stangle myRept
+pdflatex myRept
+bibtex myRept
+pdflatex myRept
+pdflatex myRept
+del *.aux
+del *.dvi
+del *.log
+del *.tex
+del *.toc
+del *.blg
+del *.bbl
+del *.brf
+del *.lo*
+del myRept-*.*
+del Rplots.pdf
+del .Rhistory
+REM move /Y myRept.R ../R/
+
+move  myRept.pdf myRept-uncomp.pdf
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=myRept.pdf myRept-uncomp.pdf
+del *.out
+del *.snm
+del *.nav
+del *-uncomp.pdf
+ 
 pause
 
