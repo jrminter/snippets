@@ -3,8 +3,7 @@
 .RData
 .DS_Store
 
-index.md
-index.html
+Readme.html
 dat/csv/*.csv
 dat/*.RData
 dat/.DS_Store
