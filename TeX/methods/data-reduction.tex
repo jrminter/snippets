@@ -1,0 +1,35 @@
+\subsection{Data reduction \& analysis}
+
+Data analysis was performed using two custom scripts written
+for the Open Source \code{R} statistical and data analysis language.
+This approach assures maximum reproducibility.
+
+The first script, \code{01-cleanData.R}, retrieves the desired
+area percent data from the .csv file, checks the entries, and
+stores the R object for later processing (this approach is our
+standard, and is most useful for larger projects where data
+cleaning often involves significant initial data processing.)
+
+The second script \code{02-anaArea.R} does the remainder of
+the data analysis, writing the plots and tables for this report.
+The script computes the usual descriptive statistics, constructs
+a panel plot with the histogram of area percents from the 60
+fields, with the empirical kernel density function and median
+value superimposed. The second plot in the panel is a boxplot
+with a visual description of the robust statistics and the
+outliers plotted. The final plot in the panel is a
+quantile-quantile plot of the experimental quantiles as a
+function of the quantiles from a standard normal distribution.
+Deviations from linearity suggest non-normality of sample
+distribution.
+
+Finally, the script tests the data for non-normality using a
+robust Jarque-Bera test (from the \code{lawstat} R-package) and
+writes tables for the report (using the \code{xtable} R-package).
+The report was written using \LaTeX .
+The entire process of data analysis and report generation may
+be reproduced using a single click of a command script
+\code{rule-them-all.cmd}.
+
+
+\endinput

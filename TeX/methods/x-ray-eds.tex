@@ -1,0 +1,78 @@
+\subsection{X-Ray Energy Dispersive Spectroscopy}
+
+X-Ray Energy Dispersive Spectra (EDS) were recorded from selected
+regions of the specimen using an EDAX Genesis system with an RTEM
+ultra-thin window SiLi detector with a 0.13 sr solid angle. The
+specimen was mounted in a ``low-background'' specimen holder,
+where the material around the specimen is constructed of Be to
+minimize the production of spurious x-rays.
+
+Spectra were recorded with electron irradiation at 200 kV with the
+microscope operated in ``nanoprobe'' mode with a 50 \textmu m diameter
+thick Pt ``top hat'' condenser lens aperture to minimize the
+transmission of ``hard x-rays'' (high-energy) down the column.
+
+Despite these precautions, the collimation of the detector
+is not sufficient to eliminate the detection of small amounts
+of Fe and Co (produced by backscattered electrons hitting the
+pole piece of the objective lens and producing undesired x-rays.
+A small Cu peak is also observed in most spectra. This is produced
+by fluorescence by backscattered electrons hitting the support grid.
+
+In this case, the specimen holder was tilted 7.5\degree\ toward
+the detector to maximize detection efficiency. The first condenser
+lens was set to ``spot size 3'' and the illumination adjusted to
+form a demagnified image of the condenser aperture on the specimen.
+This produced an evenly-illuminated disk 1.3 \textmu m in diameter,
+averaging over a convenient size region of the specimen and providing
+approximately 900 x-ray cps on the detector. Spectra were recorded 
+three representative areas of each of the regions near the bottom,
+middle, and top surfaces of the electrode cross-section.
+
+The X-ray peaks were identified using the EDAX Genesis software
+and the ``Auto'' processing feature was configured to automatically
+process each spectrum, subtracting the continuum intensity and
+computing the peak integrals.
+
+An overlay of a spectrum from one such area near the
+top of the electrode and a background spectrum is shown
+in Figure~\ref{fig:edsSpectra}. Note that this is displayed on
+a logarithmic scale and shows that the signal/noise ratio of the
+spectra from the areas is good.
+
+Because we do not have standards available, a full quantitative
+analysis is not feasible. However, the ratio of peak areas is
+proportional to the ratio of concentrations, so the semi-quantitative
+analysis described below was feasible.
+
+The EDAX ``Auto'' spectrum processing routine writes the peak
+integrals to a comma-delimited text file (.csv) that is easily
+processed by other analysis software. We processed the file using
+a script for the Open-Source, cross-platform, R Statistical
+Programming Language\footnote{We use the current (version 2.15.1),
+available from any  \href{http://cran.r-project.org/}{CRAN mirror}.}.
+
+A custom R Script, ``01-anaEDS.R'', reads in the data and creates
+dataframes containing the replicate measurements from the background,
+the bottom, middle, and the top regions of the electrode. The script
+computes the average background peak integral for each of the 
+x-ray peaks measured ( C-K, O-K, F-K, S-K, Ca-K, Cu-K, and Pt-L).
+The script then subtracts this average background intensity from
+every other spectrum in the data set. Next, the script normalizes
+the intensity in each spectrum to the C K line in that spectrum,
+computing the relative concentration of the element with respect
+to C. These results are stored as a data frame for each region
+of the electrode (top, middle, bottom). The mean element/C ratio
+and the standard error are then computed and stored as a datafame.
+
+The script next attempts to compute the catlyst/ionomer ratio for
+each region along with the standard error. The script computes this
+value, first using the Pt-L/S-K ratio and then using the Pt-L/F-K
+ratio. The script computes the standard error assuming that the
+covariance term is negligible and sums the component standard errors
+in quadrature.
+
+The script uses the ``xtable'' package to write out tables for
+inclusion in this report (composed in \LaTeX).
+
+\endinput

@@ -1,0 +1,5 @@
+imp = IJ.createImage("Untitled", "8-bit black", 500, 500, 15);
+TextRoi.setFont("Comic Sans MS", 100, 0);
+IJ.setForegroundColor(255, 0, 0);
+IJ.run(imp, "Label...", "format=0 x=50 y=100 font=100 text=sec use_text use");
+imp.show();

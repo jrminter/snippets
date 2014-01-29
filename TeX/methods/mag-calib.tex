@@ -1,0 +1,51 @@
+\subsection{SEM Image Scale Calibration}
+
+The image calibration factor [nm/pc] was measured for 15,000X
+``XHD'' images recorded at a 5 mm working distance using the TLD.
+The calibration artifact was the square array of holes with a 5
+\textmu m spacing in the KMAG-\#96-19 primary calibration standard
+manufactured for Kodak at Cornell. This standard was certified
+by the National Physical Laboratory in Great
+Britain\footnote{Certified 13-Jan-1998
+with report number 08A031/9707/SEM4/121.}
+
+Seven images of the square array of holes with a 5
+\textmu m spacing were recorded under the same conditions
+as the images of the nozzles, except using secondary electron
+detection (this does not effect the scan of the microscope).
+
+The images were analyzed using the ``KMag'' custom
+Imaging-C module developed for this purpose. This module fits
+the measured centroids from the holes to a rectangular lattice
+that may be rotated with respect to the scan direction and permits
+calibration along the scan direction (``X'') and the frame
+direction (``Y''). These individual measurements were written
+to a comma-delimited (.csv) text file.
+
+A custom script (`01-calibMag.R') for the R\footnote{Available
+at the Comprehensive R Archive Network \href{http://cran.r-project.org/}
+{(CRAN).}} Open Source
+statistical programming language automatically computed the
+mean value of the calibration factors and their standard error
+(95\% confidence interval). The
+script also computed the aspect ratio for the scan (the pixels are
+not square). The uncertainties in the two direction were added in
+quadrature to estimate the standard error of the aspect ratio.
+The script then generated the \LaTeX\ code for the results reported
+in Table~\ref{tab:magCal}. This approach makes the results more
+reproducible (they can be re-generated with a single command),
+and eliminates errors arising from 'point, click, copy, and paste'
+in Excel\footnote{The statistical community has long warned against
+using Excel for statistical analysis. For example, see B.D. McCullough
+and D. A. Heiser, `` On the accuracy of statistical procedures in
+Microsoft Excel 2007,'' \emph{Computational Statistics and Data
+Analysis}, \textbf{52}, 4570-4578 (2008).}.
+
+
+These values were entered into the
+control for the ``AnnularBseNozzle'' Imaging-C Module used to
+analyze the backscattered electron images of the nozzles.
+
+
+\endinput
+

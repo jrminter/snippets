@@ -1,0 +1,584 @@
+% =========================== trThickEDS.Rnw ===========================
+% 3456789012345678901234567890123456789012345678901234567890123456789012
+\documentclass[11pt,paper=letter,parskip=half,DIV=18,oneside,headinclude,footinclude=false,bibliography=totoc]{scrartcl}
+
+\input{./inc/jrm-koma-macros}
+
+%% general metadata:
+\newcommand{\theAuthor}{J. Minter}
+\newcommand{\theContributors}{S. Stoker, R. Gutierrez, M. Leong, K. Schell, and S. Reuter}
+\newcommand{\theRAN}{347044F} 
+\newcommand{\theTitle}{Thickness measurement of stratified thin films by X-ray EDS \\ Part 1: Proof of concept} 
+\newcommand{\theSubject}{Thickness measurement} 
+\newcommand{\theKeywords}{X-Ray EDS, stratified thin films, thickness measurement}
+\newcommand{\theDate}{December 13, 2013}
+
+\pdfcompresslevel=9
+
+% automatic hyperlinks in document
+\usepackage[pagebackref=true]{hyperref}
+\hypersetup
+{
+colorlinks=true,
+% linkcolor=DarkerRed,
+linkcolor=kodak-red,
+% citecolor=DarkGreen,
+citecolor=bcFive,
+% citecolor=threadlessTwo,
+urlcolor=NavyBlue,
+% urlcolor=threadlessFour,
+bookmarksnumbered=true,
+bookmarksopen=false,
+bookmarksopenlevel=1,
+pdfpagemode={UseOutlines},
+pdfpagelayout={SinglePage},
+pdfview=Fit,
+pdfstartview=Fit,
+pdfauthor={\theAuthor},
+pdfsubject={\theSubject},
+pdftitle={\theTitle},
+pdfkeywords={\theKeywords}
+}
+%
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+%% this is a very simple title w/o make title
+
+%% a logo at the upper right corner
+\includegraphics[width=2in]
+{./inc/kodak-analytical-sciences.pdf} \\
+
+\begin{center}
+\large{\textbf{\textcolor{kodak-red}{\theTitle}}}
+\end{center}
+
+% \vspace{0.125in}
+
+\large{
+\begin{tabular}{r l}
+\textbf{Report Accession Number:} & \theRAN \\
+\textbf{Security Classification:} & RESTRICTED \\
+\textbf{Organization:}            & Kodak Technology Center \\
+\textbf{Division:}                & Technical Solutions \\
+\textbf{Laboratory:}              & Microscopy \& Spectroscopy \\
+\textbf{Author:}                  & \theAuthor  \\
+\textbf{Kodak Contributors:}      & \theContributors \\
+\textbf{Date:}                    & \theDate \\
+\end{tabular}
+}
+
+
+\begin{abstract}
+
+The success of current functional printing programs requires repeatable
+deposition and analysis of thin metallic lines composed of multiple layers.
+Often, these are difficult to directly image and measure because of low contrast.
+The geometry of these systems violates the standard assumptions for quantitative analysis
+of X-ray energy dispersive spectroscopy (EDS).
+
+We evaluated Monte Carlo and analytical ($\Phi(\rho z)$) models for specimens
+with stratified layers. Orienting the line toward the detector mitigates the remaining
+geometric concerns. We tested the different models with standards prepared by vacuum
+evaporation and were pleased to find that the more computationally efficient $\Phi(\rho z)$
+model best agreed with thickness measured by inductively-coupled plasma spectroscopy (ICP.)
+We used free software to validate proof of concept for these measurements. We demonstrated
+that, while time consuming, measurements at multiple accelerating voltages better probed
+a specimen from a new system. More rapid measurements at a single accelerating may be used
+to examine variations within a specimen. In the absence of a probe current meter, spectra
+from standards and unknowns should be acquired in the same session.
+
+An initial comparison with results from EDS and X-ray fluorescence (XRF) on large circular
+patches two techniques show similar relations between specimens but the variability
+of the EDS is lower than the XRF. Measurement efficiency could be dramatically improved
+with more automation, but this requires new hardware.
+
+
+\end{abstract}
+
+\pagenumbering{arabic}
+\thispagestyle{empty}
+
+
+% copyright at bottom of first page
+\begin{figure*}[b]
+\noindent
+\hrulefill \\
+\input{./inc/copyright.tex}
+\end{figure*}
+
+\raggedbottom
+
+\newpage
+
+{
+\setlength{\parskip}{0pt}
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+}
+
+\newpage
+
+
+
+<<echo=F,results=hide>>=
+# A hidden code chunk
+# start with a clean environment
+rm(list=ls())
+options(digits=4, width=65, continue=" ")
+# set as needed
+str.wd <- '~/work/proj/trThickEDS/Sweave/'
+setwd(str.wd)
+Sys.setenv(TEXINPUTS=str.wd)
+Sys.setenv(BIBINPUTS=str.wd)
+Sys.setenv(BSTINPUTS=str.wd)
+# make sure needed packages & functions are loaded
+library(xtable)
+library(jrmmisc)
+
+# define any functions
+
+@
+
+\section{Introduction}
+
+Current functional printing programs require repeatable deposition of
+thin metallic lines composed of multiple layers. Business success from
+future products requires a high yield from a robust process. Process control,
+quality assurance, and process development require an analytical method
+to reliably and simultaneously measure the composition, morphology, and
+thickness of these layers -- often with high spatial resolution. In cases
+where there is sufficient contrast, one can directly measure thickness
+from cross-sections. Frequently, the image contrast is insufficient to
+obtain reliable measurements. Measurements by X-ray energy-dispersive
+spectroscopy (EDS) offer the potential for more automation but pose several
+theoretical and practical challenges. Here we report the proof of concept
+for such a measurement -- achieved using free software.
+
+\section{Theoretical Framework}
+Thin multi-layer metallic lines on the order of ten \textmu m wide and
+a total thickness of several hundred nm violate all the standard assumptions
+for normal EDS quantification algorithms (that the sample is flat, appears
+semi-infinite to the electron probe, and is homogeneous
+in composition). Happily, Jean-Louis Pouchou\footnote{Pouchou was the first
+graduate student of Raymond Castaing, the inventor of the electron microprobe.
+Pouchou and his coworker, Fran\c{c}oise Pichoir, spent 20 years developing robust
+quantitative algorithms.} has developed \cite{Pouchou1993a} 
+an analytical model which predicts x-ray generation, transmission, and
+detection for stratified thin films. Pouchou's method represents the specimen
+as stratified layers of mass thickness ($\rho z$, where $\rho$ is the
+density and $z$ is the thickness), predicts the
+penetration of the electron probe into the stack, computes the generation
+of characteristic x-rays ($\Phi(\rho z)$) in each layer, absorption
+and fluorescence as these x-rays exit the specimen, and their detection by
+the detector. Pouchou then computes the dimensionless \textbf{K-ratio} for
+the x-ray line by
+normalizing to the intensity produced by a bulk, homogeneous standard for
+the element. Because electron beam penetration increase with increasing
+accelerating voltage, measuring the K-ratios permit the analyst to compare
+experimental and model K-ratios, computing the thickness of many stacked
+layers. Pouchou has developed a commercial version of his algorithms
+(StrataGEM) which many EDS vendors license and wrap into their
+analysis system. One such system is the Oxford LayerProbe module
+that is integrated into their Aztec analysis software. Richard
+Waldo (recently retired from GM) has released a free package
+(GMRFilm\cite{Waldo1993a}) that runs under MS-DOS.
+
+In addition, to the analytical ($\Phi(\rho z)$) model, one may also use Monte
+Carlo simulation to model the trajectories of an ensemble (typically 10,000)
+of electrons as they pass through a model structure. In this case, one predicts
+all the scattering events, including the generation of both characteristic and
+continuum x-rays and then model the exit of these x-rays from the specimen
+and their detection. There are several popular (free) programs for such simulation.
+One of the most popular is NIST Monte by Nicholas Ritchie and John Villarubia
+of NIST which has been bundled into the NIST DTSA-II\cite{Ritchie2009a} X-Ray
+EDS analysis software.
+
+Monte Carlo simulation provides the analyst
+with wider choices of analytical models. These simulations are typically
+much more computationally intensive than the analytical models. This lead
+Pouchou to conclude
+
+\begin{quote}
+The Monte Carlo techniques require a huge effort if it is
+attempted to apply them to real problems of superficial
+segregation. \emph{In our opinion they are of no interest
+except for establishing the general trends of various
+parameters needed for later use in an analytical model
+of rapid and easy application.}\cite{Pouchou1991a}
+[emphasis mine]
+\end{quote}
+
+These simulations \textbf{still} require significant computation time,
+even on current systems with multi-core processors and
+lots of memory.
+
+To illustrate the depth dependence of x-ray generation from
+a stratified specimen, we end this section with an example of
+a Monte Carlo simulation of 200 nm of Ni on 400 nm of Cu on PET
+(see Figure~\ref{fig:CuNiCasPrz}).
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=\textwidth]
+{./inc/CuNi-Casino-PRZ-plot.pdf} \\
+\end{center}
+\caption[X-Ray emission from 200 nm Ni on 400 nm Cu]
+{Monte Carlo simulation of X-ray generation as a function
+of voltage for 200 nm Ni on 400 nm Cu. Some fraction is absorbed
+on the path out. Note that no Cu X-rays are generated
+at 10 kV. The simulation was performed with the Casino2\cite{Drouin2007a}
+package from Raynaud Gauvin's lab at the University of Sherbrooke (Montreal, CA).}
+\label{fig:CuNiCasPrz}
+\end{figure}
+
+Notice how analyzing such a system with probe energies ranging from 10 to
+30 kV permits the analyst to sample a range of depths in the specimen.
+
+\section{The importance of standards}
+
+The choice of model parameters can have a significant effect on the
+results. We illustrate this in Figure~\ref{fig:ThreeModels} where
+we compare three different models:
+
+\begin{enumerate}
+  \item Monte Carlo simulation without correction for continuum fluorescence.
+  This was computed using DTSA-II with a Jython script
+  using the standard library functions.
+  
+  \item Monte Carlo simulation with correction for continuum fluorescence.
+  This was computed using DTSA-II with a Jython script
+  using the new \code{mc3} wrapper functions.
+  
+  \item Pouchou and Pichoir's $\Phi(\rho z)$ model (PAP1991) with correction
+  for both characteristic and continuum fluorescence. This was computed using GMRFilm.
+
+\end{enumerate}
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=\textwidth]
+{./inc/krNiModNiCu40015kV-plot.pdf} \\
+\end{center}
+\caption[Three models for 200 nm Ni on 400 nm Cu]
+{Model predictions for 200 nm Ni on 400 nm Cu on PET.
+\textbf{\textcolor{magenta}{Magenta:}} Monte Carlo model without correction for continuum fluorescence.
+\textbf{\textcolor{red}{Red:}} Monte Carlo model with correction for continuum fluorescence.
+\textbf{\textcolor{blue}{Blue:}} $\Phi(\rho z)$ model with correction for continuum fluorescence.
+\textbf{Note that the maximum deviation occurs at the ``aim'' values reported by the client.}}
+\label{fig:ThreeModels}
+\end{figure}
+
+The results shown in Figure~\ref{fig:ThreeModels} point out the importance of using
+standards to verify model results. According to Jeff Davis, NIST does not have
+appropriate traceable standards. Peter Statham, the senior scientist at Oxford
+Instruments in charge of their LayerProbe package, reported that the best available
+approach was to prepare standards and validate them by inductively coupled plasma
+analysis (ICP) and Rutherford Backscattering Spectrometry (RBS).
+
+\section{Generation and Analysis of Standards}
+
+We chose to generate working standards by vacuum evaporation of Cu and Ni on
+to PET and analyze them by ICP, X-ray EDS in our own laboratory. Dr. Sreenivas
+Bhattiprolu of Oxford Instruments graciously measured three of our working standards
+at 15 kV and analyzed the results with the LayerProbe software. Dr. Fran\c{c}ois Thiot
+of SamX (the distributors of Pouchou's StrataGEM software) graciously analyzed
+our K-ratios from 12, 15, 20, 25, and 30 kV with the StrataGEM software. We
+used the GMRFilm software to analyze them in our own laboratory. The analysis
+procedure is described in depth in Section~\ref{ss:MultVoltAnaProc}.
+
+The output of this analysis is a contour plot of the root-mean-square deviation
+of the measured K-ratios to those computed from the model. The results for two
+standards are shown in Figure~\ref{fig:papRmsDevStds}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}[b]{\linewidth}
+    \begin{minipage}[b]{0.49\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]
+      {./inc/qm-03961-opm4764-s3-pap-rms-dev-plot.pdf} \\
+      \small{A: Standard OPM4764-S3}
+    \end{minipage} 
+    \quad %\vspace{0.25in} \\
+    \begin{minipage}[b]{0.49\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]
+      {./inc/qm-03960-opm4764-s4-pap-rms-dev-plot.pdf} \\
+      \small{B: Standard OPM4764-S4}
+    \end{minipage}
+  \end{minipage} 
+
+\caption[$\Phi(\rho z)$ model deviation plot for OPM4764-S3 \& -S4]
+{Plot of root-mean square deviation between experimental and model K-ratios
+computed with the $\Phi(\rho z)$ model for standards OPM4764-S3 \& -S4
+analyzed at 12, 15, 20, 25, and 30 kV in the FEI Dual Beam 620 FIB
+with an EDAX RTEM detector. Values from ICP are shown as an inset.
+Note the good agreement.}
+\label{fig:papRmsDevStds}
+\end{figure}
+
+The agreement between the ICP and $\Phi(\rho z)$ thickness estimates
+was quite reasonable. Note also that error surface in the specimen 
+with the thinner Ni and Cu layers (OPM4764-S3) appears to be isotropic
+the specimen with the thicker thinner Ni and Cu layers (OPM4764-S4)
+is elliptical, with more uncertainty in the thickness of the buried
+Cu layer. This was also reasonably computationally efficient - a very
+large model space (Ni from 5 to 300 nm and Cu from 100 to 1000 nm 
+1 nm steps) can be computed at a single voltage in less than 10 min.
+
+The agreement between ICP and Monte Carlo simulations was much worse,
+and the computations for a smaller grid search with 5 nm steps required
+67 hours. One might reduce the computation time by performing a steepest
+descent search, but the potential for finding a local minimum is greater.
+We were quite pleased that the results from the faster $\Phi(\rho z)$ model
+were the better fit. Note that the results measured by the vendors from
+these standards agreed within a few nm. 
+
+
+\section{Geometric factors}
+
+The astute reader will have noted that printed lines are not
+semi-infinite thin films. Happily, Pouchou\cite{Pouchou1993a}
+addressed this problem when analyzing an oxidized SiC thin coating
+on a 10 \textmu m diameter C fiber. Pouchou noted that X-ray
+detection is a \textbf{line of sight} process and that the solution
+was to orient the long axis of the fiber (or our printed lines)
+toward the X-ray detector. In that case, the majority of the
+of the x-rays detected have traversed a similar path.
+
+\section{Multi-voltage analysis of a printed line (``DJ1'')}
+
+We next performed a multi-voltage analysis on a printed line supplied
+by Dan Jin. The line had been printed on 2013-07-16. An image of the
+line segment - oriented to face the EDS detector and a close-up of the
+regions analyzes are shown in Figure~\ref{fig:imgDJ1}.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=\textwidth]
+{./inc/qm-03962-DJ1-ser.png} \\
+\end{center}
+\caption[A printed line]
+{\textbf{Left} The printed line imaged at 15 kV oriented with the
+line axis facing the detector. \textbf{Right} A higher magnification
+image with boxes defining the regions analyzed. Note that the surface
+is reasonably smooth in this area.}
+\label{fig:imgDJ1}
+\end{figure}
+
+These spectra were analyzed as before (see Section~\ref{ss:MultVoltAnaProc}).
+The contour plots from the three regions were similar. The first is shown
+in Figure~\ref{fig:cpDJ1.1}.
+
+\clearpage
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=\textwidth]
+{./inc/qm-03962-DJ1-Ser-dup-1-pap-kr-rms-dev-plot.pdf} \\
+\end{center}
+\caption[Analysis from a printed line DJ1]
+{Analysis of the first region from Figure~\ref{fig:imgDJ1} using Pouchou's
+$\Phi(\rho z)$ model. The Ni thickness was much less than we expected.}
+\label{fig:cpDJ1.1}
+\end{figure}
+
+The results from the three duplicates are shown in Table~\ref{tab:DJ1}.
+
+\begin {table}[h!]
+\begin{center}
+\begin{tabular}{| r | r | r |}
+\hline
+\textbf{ROI} & \textbf{Ni [nm]} & \textbf{Cu nm} \\
+\hline
+\textbf{1}   & 17               & 488 \\
+\hline
+\textbf{2}   & 17               & 559  \\
+\hline
+\textbf{3}   & 15               & 525 \\
+\hline
+\end{tabular}
+\end{center}
+\caption[Layer thickness from line ``DJ1'']
+{Measured layer thickness from printed line ``DJ11'' using Pouchou's
+$\Phi(\rho z)$ model and experimental K-ratios measured at 12, 15, 20, 25, and 30 kV.}
+\label{tab:DJ1}
+\end{table}
+
+Because we must make the measurements manually and our detector efficiency is low
+(a 10 mm$^2$ area SiLi with a long working distance and a small solid angle) we needed
+to collect spectra for 100 sec/pt. Without automation such a multi-voltage analysis
+required most of an afternoon. The benefit is that the large number of measurements per
+area make it unlikely that the analysis will converge in an spurious local minimum.
+Once the analyst has performed an initial multi-voltage analysis of a system, additional
+measurements may be collected at a single accelerating voltage. Such single voltage
+measurements are much faster.
+
+\clearpage
+
+\section{Additional voltage analysis of a printed line (``DJ1'')}
+
+We collected spectra at 15 kV from 15 locations along as single line, crossing one
+junction. As before we performed a grid search to find the minimum RMS deviation
+between mode and observed K-ratios. Data collection required about an hour, including
+standards. The results are shown in Figure~\ref{fig:DJ15kV}.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=\textwidth]
+{./inc/qm-03962-DJ1-d15-pap-rmsDev-plot.pdf} \\
+\end{center}
+\caption[Analysis from line DJ1 at 15 kV]
+{Analysis along a printed line at 15 kV using Pouchou's $\Phi(\rho z)$ model.
+The Ni thickness was much less than we expected and varied by $\sim \pm$ 5 nm,
+while the variation of the Cu was much larger ($\sim \pm$ 100 nm) -- as
+expected from the grain structure.}
+\label{fig:DJ15kV}
+\end{figure}
+
+\section{A single voltage comparison to XRF}
+
+In July we receive a set of samples (318913-50A, -B, -53, and -52) which had been
+printed in Woodlands during the week of June 24 and analyzed by Kevin Schell and
+Shawn Reuter in
+Lufkin using the TX XRF. These specimens contained regions with six small circles
+large enough for XRF measurements and the lines that were too small to measure.
+Steve Stoker had collected a data set at 15 and 25 kV from the circles and
+at 15 kV from some of the lines between July 12 and July 23. At the time we were
+only able to analyze for Ni. Since developing the capabilities described, we
+thought it prudent to re-examine the 15 kV data. Some of the standards for the line
+spectra had not been collected during the same session as most of the unknowns. This
+means the electron beam had been adjusted in between measuring the standard and unknown
+and it is likely that the probe currents were different. Without an independent measure
+of probe current (a Faraday cup and electrometer or at least a Cu spectrum recorded at
+the same time as the unknown, we cannot estimate the correction factor. All but one of
+the line specimens (-50A) exhibited convergence problems with the  $\Phi(\rho z)$ model,
+so we will only report the results from line 318913-50A. Happily, all the data from the
+circles converged well to minima with low RMS deviations. We also had two specimens with
+circles from sample 318913-50A, so we analyzed both. The results were quite
+consistent. The results are compared as box-plots in Figure~\ref{fig:15kV318913}.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=0.9\textwidth]
+{./inc/QM10-05-Comparison.pdf} \\
+\end{center}
+\caption[Analysis 318913 at 15 kV and by XRF]
+{Box plots from thickness analysis of small circles and one line measured by EDS at
+15 kV and by XRF in Lufkin. The dark center line is the median thickness from the six
+duplicates and the box spans the first to third quartiles of the data. The whisker connects
+the upper and lower adjacent values ($Q1 - 1.5\cdot IQR$ and $Q3 + 1.5\cdot IQR$). 
+The circles outside the whiskers are outliers from an equivalent normal distribution.
+Note that the two techniques show similar relations between specimens but the variability
+of the EDS is lower than the XRF.}
+\label{fig:15kV318913}
+\end{figure}
+
+The two techniques show similar relations between specimens but the variability
+of the EDS is lower than the XRF.
+
+\section{Conclusions and recommendations}
+
+\begin{itemize}
+\item We have demonstrated that analytical ($\Phi(\rho z)$)
+models for stratified layers predict Ni and Cu thickness values in good
+agreement with ICP values for evaporated thin films and are
+computationally efficient. In one cross-over with XRF measurements,
+we saw similar trends between specimens and lower variability with
+the specimen by EDS.
+
+\item Standards and unknowns should be collected in a single session.
+Though time consuming, analysis at multiple accelerating
+voltages provides more robust analysis less sensitive to local
+minima. It is important to have good standards for \textbf{all} the
+important elements in the specimen. 
+
+\item After an initial multi-voltage analysis, variations
+across similar samples may be more rapidly measured at a single voltage.
+
+\item Monte Carlo models are too computationally intensive
+for repetitive analysis and give worse agreement with ICP on evaporated
+standards.
+
+\item Orienting lines toward the detector mitigates geometric
+issues.
+
+\item We were surprised by the small Ni thickness on the
+some of the lines we measured.
+
+\item Manual measurements on our equipment are tedious. Modern X-ray EDS
+systems solve this with automation. We have purchased the StrataGEM software
+to aid data analysis. We would greatly benefit from a new EDS system with
+a high solid angle silicon drift detector and mapping capabilities 
+installed on our microscope equipped with an with automation interface.
+
+\end{itemize}
+
+
+\section{Appendices}
+
+\subsection{Multivoltage Analysis Procedure}
+\label{ss:MultVoltAnaProc}
+
+EDS spectra from the Cu and Ni bulk standards (TEM grids) and the
+unknowns were collected at 12, 15, 20, 25, and 30 kV in a single
+session. Three duplicate spectra were collected from the Cu and Ni
+standard and from the appropriate areas on the unknown
+at each accelerating voltage. The Cu spectra were also used to check
+on probe current stability. The first Cu spectrum was measured prior
+to collecting the Ni standard spectra. The second Cu spectrum was
+collected after measuring the Ni standard. The final Cu spectrum was
+measured after collecting spectra from the unknown. The precision of
+the Cu and Ni peak intensities were equivalent suggesting that the
+probe current was stable within our measurement precision.
+
+The Cu and Ni ``standard'' spectra for quantification were constructed
+as the average of the three duplicate measurements using a custom Jython
+script and DTSA-II. The K-ratios were measured using a second custom Jython
+script and DTSA-II. The script loaded the appropriate standard and unknown
+spectra, performed a top-hat filter on each spectrum to remove the slowly-varying
+continuum (background) intensity, and then performed a multiple linear least squares
+fit of the unknown to the standards. This MLLSQ fit produces the K-ratios.
+The script stored the K-ratios, accelerating voltage, and spectrum names
+in arrays during processing. At the end of the processing loop, the script
+wrote the results to a comma-delimited file for subsequent processing.
+
+We compared the root mean square deviation of computations from the $\Phi(\rho z)$
+model to our experimental K-ratios in a grid search. To automate this, we wrote
+a Jython wrapper script to generate the input for GMRFilm, run the GMRFilm program,
+and parse the result output and write a comma-delimited file with the beam voltage,
+Ni thickness, Cu thickness, K-ratio for the NiK-$\alpha$ line, and K-ratio for the
+CuK-$\alpha$ line for each thickness/voltage combination. We were then able to use
+a custom R script to read our experimental K-ratios (previously measured with
+DTSA-II and stored in a comma-delimited file), compute the RMS deviation from the
+model, find the minimum value, and do a contour plot. 
+
+We compared the root mean square deviation of computations from the Monte Carlo
+model to our experimental K-ratios in a grid search. To automate this, we wrote
+a Jython wrapper scripts for DTSA-II both the bulk standards and the thin film
+spectra. We used the standard \code{gov.nist.microanalysis.NISTMonte} library
+functions to generate spectra without correction for continuum fluorescence.
+We used the Nicholas Ritchie's \code{mcSimulate3.py} Jython wrapper script
+to generate spectra with correction for continuum fluorescence. We then processed
+these spectra as we processed our unknowns.
+
+To make our code more robust and reproducible, we assembled as much as possible
+into Jython modules and R packages which are maintained under version control
+(git) and may be called from a DTSA-II Jython script or an R script as appropriate.
+We find the ``DRY'' (don't repeat yourself) principle of software development
+significantly reduces error. The use of version control permits us to recreate
+a previous version as needed and helps in instances of ``I can't believe that I
+deleted that file!!!''
+
+
+% For bibtex...
+\bibliographystyle{IEEEtran}  % (uses file "IEEEtran.bst")
+\bibliography{./inc/thickEDS}
+
+\end{document}

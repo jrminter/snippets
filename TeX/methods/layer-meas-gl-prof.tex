@@ -1,0 +1,62 @@
+\subsection{Layer thickness measurement from gray level profiles}
+
+Robust measurements of layer thickness requires both reliable
+spatial calibration of the image and a robust method to locate
+the image boundaries. Robust boundary detection is often more
+difficult than one might anticipate. Boundaries are often rough
+and different observers frequently choose different boundary
+positions. The presence of noise in the image also complicates
+this measurement.
+
+One reproducible approach to boundary detection is to compute
+the absolute value of the derivative of the gray level profile
+across the boundary and to choose the maximum (representing the
+greatest slope of the boundary) as the edge position. To reduce
+the effect of noise, one can average many gray level profiles
+which are recorded perpendicular to the boundary.
+
+We have developed a custom tool chain that automates much
+of this process. Think of this tool-chain as modules that may
+be quickly configured to handle a wide range of problems.
+
+In this instance, to provide an estimate
+of the polymer layer thickness and to help understand the
+image contrast, regions of the images of the FIB section
+were identified that showed the best contrast at the boundary.
+A line was drawn with the mouse along the projected interface
+to determine the small tilt angle of the interface with respect
+to the scan axis of the microscope. The image was rotated using
+the analySIS Five software such that the interface was parallel
+to the height of the image. A custom Imaging-C module was used
+to compute the average gray-level profile across the image
+and the data were stored as a comma-delimited text file (.csv).
+
+The profile was analyzed using a series of custom scripts designed
+for such measurements using the Open Source R statistical programming
+language. The series was designed for a reproducible workflow.
+
+The first script, 01-loadClean.R, loads the data from the
+text file, computes the derivative using spline-smoothing
+package `sfsmisc' developed by Martin Maechler \emph{et al.}
+\footnote{Package ``sfsmisc,'' Version: 1.0-20, which provides
+several useful utilities from Seminar fuer Statistik, ETH Zurich}
+Our first script writes a binary data file containing the
+position, mean gray level, and the spline-smoothed absolute
+derivative ready for a peak search.
+
+The second script, 02-measThickGm.R, reads the prepared
+data frame, does a peak search (using some functions developed
+by E. F. Glynn of the Stowers Institute for Medical Research.
+The script finds the largest peaks (presumably the boundaries),
+and computes the layer thickness. The script prepares an overlay
+plot of the gray level profile (noisy), the spine-smoothed derivative
+and the peak location. This version of the script simply finds
+the peaks. We have extended this approach for cases where there
+are well-defined approximately Gaussian peaks (electron diffraction
+data) to fit the profile to a sum of Gaussian peaks to get better location
+of the centroid. This preliminary analysis did not warrant that.
+Finally, the layer thickness is stored to a R binary data file -- to
+permit later automated processing to generate statistics from multiple
+measurements.
+
+\endinput
