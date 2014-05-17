@@ -1,0 +1,22 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=0.75in, bottom=0.75in, left=0.75in, right=0.75in]{geometry}
+\usepackage{bookman}%% Bookman font
+
+\begin{document}
+%\VignetteEngine{knitr::knitr}
+\title{A not so minimal example}
+\author{John Minter}
+\maketitle
+We examine the relationship between speed and stopping
+distance using a linear regression model:
+$Y = \beta_0 + \beta_1 x + \epsilon$.
+<<model, fig.width=7, fig.height=3.5, fig.align='center'>>=
+par(mar = c(4, 4, 1, 1), mgp = c(2, 1, 0), cex = 1.1)
+plot(cars, pch = 20, col = 'darkgray')
+fit <- lm(dist ~ speed, data = cars)
+abline(fit, lwd = 2, col='blue')
+@
+The slope of a simple linear regression is
+\Sexpr{coef(fit)[2]}.
+\end{document}
