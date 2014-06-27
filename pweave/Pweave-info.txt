@@ -1,0 +1,8 @@
+Pweave devel repo
+
+
+git clone https://github.com/mpastell/Pweave.git
+
+
+Put pygments.sty in /usr/local/texlive/texmf-local/tex/latex
+run mktexlsr
