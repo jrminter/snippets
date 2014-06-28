@@ -22,7 +22,7 @@ def mfreqz(b,a=1):
     w,h = signal.freqz(b,a)
     h = abs(h)
     return(w/max(w), h)
-@ 
+@
 
 \textbf{Make the impulse response function and use terminal formatted output (=doctest block.)}
 
@@ -43,7 +43,7 @@ plt.plot(w,h,'k')
 plt.ylabel('Amplitude')
 plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
 plt.show()
-@ 
+@
 
 
 
@@ -58,7 +58,7 @@ plt.show()
 print 
 for i in range(10):
     print  round(h[i],2) , '&',  round(w[i],2), r'\\'
-@ 
+@
 \end{tabular}
 \end{center}
 \end{table}
