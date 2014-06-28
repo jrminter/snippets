@@ -45,22 +45,4 @@ plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
 plt.show()
 @
 
-
-
-\begin{table}
-\caption{The first 10 values of the frequency response (w,h) as a table, notice that the code is hidden in the output document.}
-\begin{center}
-\begin{tabular}{ c | c }
-\hline
-\textbf{Amplitude} &  \textbf{Frequency} \\ \hline
-
-<<results = 'rst', echo = False>>=
-print 
-for i in range(10):
-    print  round(h[i],2) , '&',  round(w[i],2), r'\\'
-@
-\end{tabular}
-\end{center}
-\end{table}
-
 \end{document}

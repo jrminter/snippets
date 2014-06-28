@@ -10,7 +10,7 @@ dat/.DS_Store
 
 Pweave/FIR_design_pygments/*.pdf
 Pweave/tryPweaveExample/*.pdf
-
+Pweave/tryPweaveExample/.ipynb_checkpoints/*
 figure/*
 
 R/*.pdf
