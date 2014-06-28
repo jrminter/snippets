@@ -9,6 +9,7 @@ dat/*.RData
 dat/.DS_Store
 
 Pweave/FIR_design_pygments/*.pdf
+Pweave/minted/*.pdf
 Pweave/tryPweaveExample/*.pdf
 Pweave/tryPweaveExample/.ipynb_checkpoints/*
 figure/*

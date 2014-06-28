@@ -1,0 +1,52 @@
+\documentclass[letterpaper,11pt,final]{article}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage[margin=0.75in]{geometry}
+
+\begin{document}
+
+\title{Pweave Example - Frequency response of a moving average filter}
+\author{Matti Pastell \\
+\url{http://mpastell.com}}
+
+\maketitle
+
+You will note that this version has syntax coloring which was generated using the package \emph{minted}. First we create an 11 point moving average filter and plot its frequency response and print the values.
+
+<<>>=
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.signal as signal
+#A function to plot frequency and phase response
+def mfreqz(b,a=1):
+    w,h = signal.freqz(b,a)
+    h = abs(h)
+    return(w/max(w), h)
+@ 
+
+Next, make the impulse response function and use terminal formatted output (=doctest block.)
+
+<<term = True>>=
+n = 11.
+n
+b = np.repeat(1/n, n)
+b
+@
+
+
+Finally, calculate the frequency response and plot it:
+
+<<fig = True, caption = 'Frequency response of an 11 point moving average filter'>>=
+w, h = mfreqz(b)
+#Plot the function
+plt.plot(w,h,'k')
+plt.ylabel('Amplitude')
+plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+plt.show()
+@ 
+
+
+
+\end{document}
+ 
