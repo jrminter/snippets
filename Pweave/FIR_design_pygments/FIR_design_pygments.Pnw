@@ -1,8 +1,9 @@
-\documentclass[a4paper,11pt,final]{article}
+\documentclass[letterpaper,11pt,final]{article}
+
 \usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url}
 \usepackage{palatino}
 \usepackage{pygments}
-\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
+\usepackage[margin=0.75in]{geometry}
         
 \hypersetup  
 {   pdfauthor = {Matti Pastell},
