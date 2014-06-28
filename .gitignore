@@ -8,6 +8,9 @@ dat/csv/*.csv
 dat/*.RData
 dat/.DS_Store
 
+Pweave/FIR_design_pygments/*.pdf
+Pweave/tryPweaveExample/*.pdf
+
 figure/*
 
 R/*.pdf
