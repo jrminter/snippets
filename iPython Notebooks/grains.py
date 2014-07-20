@@ -1,12 +1,13 @@
 """
   grains.py
   
-  2013-12-14 J. R. Minter
+  2014-07-20 J. R. Minter
   
   Simple particle analysis of AgX TEM image.
   
   Adapted from http://pythonvision.org/basic-tutorial to python3 and
-  using mainly skimage.
+  using mainly skimage. Updated to use tifffile to read the 16 bit per
+  pixel TIF image.
 
   image from KGL-31
 
