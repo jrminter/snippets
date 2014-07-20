@@ -21,6 +21,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage as nd
+import tifffile
 
 import skimage.exposure as expo
 import skimage.feature as fea       # peak_local_max
@@ -38,7 +39,9 @@ fOut = 'features.csv'
 # fImg = './grain.png'
 fImg = './grains.tif'
 
-im = io.imread(fImg)
+tif = tifffile.TiffFile(fImg)
+
+im = tif[0].asarray()
 print(im.dtype)
 print(im.shape)
 imgRows = im.shape[0]
