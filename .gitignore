@@ -30,3 +30,4 @@ Sweave/*.tex
 Sweave/*.toc
 
 iPython Notebooks/features.csv
+iPython Notebooks/.ipynb_checkpoints/*
