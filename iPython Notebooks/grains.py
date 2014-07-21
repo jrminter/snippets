@@ -32,19 +32,32 @@ import skimage.measure as mea       # regionprops
 import skimage.morphology as mor    # watershed, disk
 
 import pymorph as pm
+import os
+
+homDir = os.environ['HOME']
+relDir = "/work/snippets/iPython Notebooks"
+wd = homDir + relDir
+os.chdir(wd)
+
 
 bShowIntermed = False
+bVerbose = False
 bShowCur = True
 filtSize = 7
-fOut = 'features.csv'
+fOut = './features.csv'
+if os.path.isfile(fOut):
+  os.remove(fOut)
+  
 # fImg = './grain.png'
 fImg = './grains.tif'
 
 tif = tifffile.TiffFile(fImg)
 
 im = tif[0].asarray()
-print(im.dtype)
-print(im.shape)
+
+if(bVerbose):
+  print(im.dtype)
+  print(im.shape)
 imgRows = im.shape[0]
 imgCols = im.shape[1]
 
@@ -58,7 +71,9 @@ if bShowIntermed:
   plt.show()
 
 T = fil.threshold_otsu(im)
-print(T)
+
+if(bVerbose):
+  print(T)
 thr = im < T
 
 if bShowIntermed:
@@ -89,12 +104,15 @@ if bShowIntermed:
 
 props = mea.regionprops(lab, intensity_image=im, cache=True)
 
-print("")
+if(bVerbose):
+  print("")
 l = len(props)
 
 f = open(fOut,'w')
 line = "label, ecd, minor.ax.len, major.ax.len, ar, solidity"
-print(line)
+
+if(bVerbose):
+  print(line)
 f.write(line+'\n')
 for i in range(l):
   # check the labeled regions for border touching
@@ -106,7 +124,8 @@ for i in range(l):
           ecd = 2.0 * math.sqrt(props[i].area/math.pi)
           ar = props[i].major_axis_length / props[i].minor_axis_length
           line = "%g, %g, %g, %g, %g, %g" % (i+1, ecd, props[i].minor_axis_length, props[i].major_axis_length, ar, props[i].solidity)
-          print(line)
+          if(bVerbose):
+            print(line)
           f.write(line+'\n')
           
 f.close()
