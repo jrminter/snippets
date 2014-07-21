@@ -28,3 +28,5 @@ Sweave/*.snm
 Sweave/*.synctex.gz
 Sweave/*.tex
 Sweave/*.toc
+
+iPython Notebooks/features.csv
