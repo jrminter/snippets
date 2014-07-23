@@ -28,7 +28,17 @@ VERSION = '1.0'
 debugLevel = 0   # 0=none, 1-3=basic, 4-5=simple, 6-10 verbose
 
 
-### utility fuctions ###
+### utility functions ###
+
+def by2str(bs):
+    """convert bytes to string, do nothing if argument is not a byte"""
+    st = bs
+    if(type(bs) == type(b'blah')):
+        st = bs.decode("latin1", "strict")
+    return st
+
+
+
 # Image to Array
 def im2ar( image_ ):
     """Convert PIL Image to Numpy array."""
@@ -77,7 +87,7 @@ def readString(f, len_=1):
     """Read len_ bytes as a string in file f"""
     read_bytes = f.read(len_)
     str_fmt = '>'+str(len_)+'s'
-    return struct.unpack( str_fmt, read_bytes )[0]
+    return by2str(struct.unpack( str_fmt, read_bytes ))[0]
 
 def readLEShort(f):
     """Read 2 bytes as *little endian* integer in file f"""
@@ -193,18 +203,15 @@ class DM3(object):
 
     ## utility functions
     def _makeGroupString(self):
-        tString = self._curGroupAtLevelX[0]
+        tString = by2str(self._curGroupAtLevelX[0])
         for i in range( 1, self._curGroupLevel+1 ):
-            tString += '.' + self._curGroupAtLevelX[i]
+            tString += '.' + by2str(self._curGroupAtLevelX[i])
         return tString
 
     def _makeGroupNameString(self):
         tString = self._curGroupNameAtLevelX[0]
         for i in range( 1, self._curGroupLevel+1 ):
-            if(type(self._curGroupNameAtLevelX[i]) == bytes):
-                tString += '.' + str(self._curGroupNameAtLevelX[i].decode(encoding="latin1"))
-            else:
-                tString += '.' + str(self._curGroupNameAtLevelX[i])
+            tString += '.' + str(by2str(self._curGroupNameAtLevelX[i]))
         return tString
 
     def _readTagGroup(self):
@@ -252,8 +259,7 @@ class DM3(object):
             print(str(self._curGroupLevel)+": Tag label = "+tagLabel)
         if isData:
             # give it a name
-            if(type(tagLabel) == bytes):
-                tagLabel = str(tagLabel.decode(encoding="latin1"))
+            tagLabel = str(by2str(tagLabel))
             self._curTagName = self._makeGroupNameString()+"."+tagLabel
             # read it
             self._readTagType()
@@ -264,9 +270,7 @@ class DM3(object):
         return 1
 
     def _readTagType(self):
-        delim = readString(self._f, 4)
-        if(type(delim) == bytes):
-            delim = str(delim.decode(encoding="latin1"))
+        delim = by2str(readString(self._f, 4))
         if ( delim != '%%%%' ):
             raise Exception(hex( self._f.tell() )
                             + ": Tag Type delimiter not %%%%")
@@ -287,7 +291,7 @@ class DM3(object):
         elif eT == DOUBLE:
             width = 8
         else:
-            # returns -1 for unrecognised types
+            # returns -1 for unrecognized types
             width = -1
         return width
 
@@ -307,7 +311,7 @@ class DM3(object):
                             self._readNativeData(encodedType, etSize) )
         elif ( encodedType == STRING ):
             stringSize = readLong(self._f)
-            self._readStringData(stringSize)
+            by2str(self._readStringData(stringSize))
         elif ( encodedType == STRUCT ):
             # does not store tags yet
             structTypes = self._readStructTypes()
@@ -345,6 +349,7 @@ class DM3(object):
             ## !!! *Unicode* string (UTF-16)... convert to Python unicode str
             rString = readString(self._f, stringSize)
             rString = str(rString, "utf_16_le")
+            rString = by2str(rString)
             if ( debugLevel > 3 ):
                 print(rString + "   <"  + repr( rString ) + ">")
         if ( debugLevel > 0 ):
@@ -452,18 +457,15 @@ class DM3(object):
         #     => can then be easily converted to any encoding
         # - /!\ tag names may not be ascii char only
         #       (e.g. '\xb5', i.e. MICRO SIGN)
-        # tagName = str(tagName, 'latin-1')
-        if(type(tagName) == bytes):
-            tagName = str(tagName.decode(encoding="latin1"))
+
+        tagName = by2str(tagName)
         # - convert tag value to unicode if not already unicode object
         #   (as for string data)
-        if(type(tagValue) == bytes):
-            tagValue = str(tagValue.decode(encoding="latin1"))
-        else:
-            tagValue = str(tagValue)
+        if(type(tagValue) == type(b'blah')):
+            tagValue = by2str(tagValue)
         # store Tags as list and dict
-        self._storedTags.append( tagName + " = " + tagValue )
-        self._tagDict[tagName] = tagValue
+        self._storedTags.append( tagName + " = " + str(tagValue) )
+        self._tagDict[tagName] = str(tagValue)
 
     ### END utility functions ###
 
@@ -559,7 +561,7 @@ class DM3(object):
             print("Warning: cannot generate dump file.")
         else:
             for tag in self._storedTags:
-                dumpf.write( str(tag.encode(self._outputcharset)) + "\n" )
+                dumpf.write( str(tag.encode(by2str(self._outputcharset))) + "\n" )
             dumpf.close
 
     @property

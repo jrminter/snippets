@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os.path
+import os
 import argparse
 
 import numpy as np
@@ -14,7 +14,11 @@ from utilities import calcHistogram, calcDisplayRange
 
 # CONSTANTS
 
-savedir = "C:\\Temp\\pyDM3reader"
+homDir = os.environ['HOME']
+relDir = "/work/snippets/py3-DM3reader"
+wd = homDir + relDir
+os.chdir(wd)
+
 debug = 0
 
 # define command line arguments
@@ -55,7 +59,7 @@ print("cuts:",cuts)
 
 # dump image Tags in txt file
 if args.dump:
-    dm3f.dumpTags(savedir)
+    dm3f.dumpTags(wd)
 
 # get image data
 aa = dm3f.imagedata
@@ -84,7 +88,7 @@ if args.verbose:
 # convert image to various formats
 if args.convert:
     # save image as TIFF
-    tif_file = os.path.join(savedir,fileref+'.tif')
+    tif_file = os.path.join(wd,fileref+'.tif')
     im = Image.fromarray(aa)
     im.save(tif_file)
     # check TIFF dynamic range
@@ -115,6 +119,6 @@ if args.convert:
 
     # - save as PNG and JPG
     im_dsp = Image.fromarray(aa_norm)
-    im_dsp.save(os.path.join(savedir,fileref+'.png'))
-    im_dsp.save(os.path.join(savedir,fileref+'.jpg'))
+    im_dsp.save(os.path.join(wd,fileref+'.png'))
+    im_dsp.save(os.path.join(wd,fileref+'.jpg'))
 
