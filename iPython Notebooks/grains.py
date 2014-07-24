@@ -1,7 +1,7 @@
 """
   grains.py
   
-  2014-07-20 J. R. Minter
+  2014-07-23 J. R. Minter
   
   Simple particle analysis of AgX TEM image.
   
@@ -14,6 +14,9 @@
   
   Note that since the skimage regionprops supplies the bounding
   box, we can just eliminate the features touching the borders.
+  
+  N.B. - This image was recorded at 16,500X with the CCD binned to
+  1024x1024 pixels and has a scale factor of 1.213 nm/px
   
 
 """
