@@ -31,3 +31,11 @@ Sweave/*.toc
 
 iPython Notebooks/features.csv
 iPython Notebooks/.ipynb_checkpoints/*
+
+pyDM3reader/pyDM3reader/__pycache__/*
+pyDM3reader/pyDM3reader/build/*
+pyDM3reader/*.tif
+pyDM3reader/build/*
+pyDM3reader/dist/*
+pyDM3reader/pyDM3reader.egg-info/*
+
