@@ -38,7 +38,7 @@ import pymorph as pm
 import os
 
 homDir = os.environ['HOME']
-relDir = "/work/snippets/iPython Notebooks"
+relDir = "/work/snippets/py3"
 wd = homDir + relDir
 os.chdir(wd)
 
@@ -52,7 +52,7 @@ if os.path.isfile(fOut):
   os.remove(fOut)
   
 # fImg = './grain.png'
-fImg = './grains.tif'
+fImg = '../tif/grains.tif'
 
 tif = tifffile.TiffFile(fImg)
 

@@ -1,14 +1,18 @@
 """
-  procGrainsSeries.py
+  procGrainsSeriesDM3.py
   
-  2013-12-16 J. R. Minter
+  2014-07-26 J. R. Minter
   
-  Process an analySIS image file series of AgX TEM image.
+  Process a directory of DigitalMicrograph .dm3 image files of 
+  clumped AgX grains and measure the separated grains.
   
   Adapted from http://pythonvision.org/basic-tutorial to python3 and
-  using mainly skimage.
+  using mainly skimage, scipy, numpy, and pyDM3reader. One advantage of
+  this approach is that the code reads the scale factor from the image
+  file.
 
-  use case from from KGL-31
+  use case from from KGL-31. Images originally recorded 2013-11-05
+  on the FEI CM20UT S/N D692 at 16,500X with the CCD camera binned by 2.
 
   
   Note that since the skimage regionprops supplies the bounding
@@ -22,6 +26,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage as nd
+import pyDM3reader as dm3
+from PIL import Image
 
 import skimage.exposure as expo
 import skimage.feature as fea       # peak_local_max
@@ -34,15 +40,22 @@ import pymorph as pm
 
 bShowIntermed = True
 filtSize = 7
+
+homDir = os.environ['HOME']
+relDir = "/work/snippets/py3"
+wd = homDir + relDir
+os.chdir(wd)
+
 imgRoot = os.environ['IMG_ROOT']
-relDir = "/qm-03966-KJL-031-ifs"
+relDir = "/test/clumpAgX/qm-03966-KJL-031"
 fOut = './qm-03966-KJL-031-features.csv'
+debug = 0
 
 imgDir = imgRoot + relDir
-query = imgDir + "/*.tif"
+query = imgDir + "/*.dm3"
 list = glob.glob(query)
 f = open(fOut,'w')
-line = "img, label, ecd, minor.ax.len, major.ax.len, ar, solidity"
+line = "img, label, ecd.nm, minor.ax.len.nm, major.ax.len.nm, ar, solidity"
 print(line)
 f.write(line+'\n')
 f.close()
@@ -50,11 +63,17 @@ j = 0
 
 for f in list:
   j += 1
-  pts = f.split("\\")
-  imgFile = pts[1]
-  imgPath = imgDir + "/" + imgFile
-  print(imgPath)
-  im = io.imread(imgPath)
+  print(f)
+  dm3f = dm3.DM3lib.DM3(f, debug=debug)
+  lPath = dm3f.filename.split('/')
+  l = len(lPath)
+  imgName = lPath[l-1].split('.')[0]
+  print(" name: %s" % imgName )
+  nmPerPx = dm3f.pxsize[0]
+  print("scale: %.3f nm/px" % nmPerPx)
+  # get image data
+  im = dm3f.imagedata
+  print(im.shape)
   imgRows = im.shape[0]
   imgCols = im.shape[1]
   T = fil.threshold_otsu(im)
@@ -79,7 +98,8 @@ for f in list:
           if(theBox[3] < imgCols):
             ecd = 2.0 * math.sqrt(props[i].area/math.pi)
             ar = props[i].major_axis_length / props[i].minor_axis_length
-            line = "%g, %g, %g, %g, %g, %g, %g" % (j, i+1, ecd, props[i].minor_axis_length, props[i].major_axis_length, ar, props[i].solidity)
+            line = "%g, %g, %g, %g, %g, %g, %g" % (j, i+1, ecd*nmPerPx, props[i].minor_axis_length*nmPerPx, props[i].major_axis_length*nmPerPx, ar, props[i].solidity)
             print(line)
             f.write(line+'\n')
   f.close()
+
