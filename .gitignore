@@ -29,8 +29,8 @@ Sweave/*.synctex.gz
 Sweave/*.tex
 Sweave/*.toc
 
-iPython Notebooks/features.csv
-iPython Notebooks/.ipynb_checkpoints/*
+iPythonNotebooks/features.csv
+iPythonNotebooks/.ipynb_checkpoints/*
 
 pyDM3reader/pyDM3reader/__pycache__/*
 pyDM3reader/pyDM3reader/build/*
