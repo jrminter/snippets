@@ -16,6 +16,9 @@ figure/*
 
 R/*.pdf
 R/.DS_Store
+R/misc/.DS_Store
+R/misc/*.png
+
 
 Sweave/inc/.DS_Store
 Sweave/.DS_Store

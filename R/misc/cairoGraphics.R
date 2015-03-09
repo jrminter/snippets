@@ -2,7 +2,7 @@
 # from http://is-r.tumblr.com/post/33421588764/using-cairographics-with-ggsave
 # .png with Windows GDI versus .png with cairographics
 
-doInstall <- TRUE  # Change to FALSE if you don't want packages installed.
+doInstall <- FALSE  # Change to FALSE if you don't want packages installed.
 toInstall <- c("ggplot2", "RColorBrewer", "Cairo")
 if(doInstall){install.packages(toInstall, repos = "http://cran.us.r-project.org")}
 lapply(toInstall, library, character.only = TRUE)
